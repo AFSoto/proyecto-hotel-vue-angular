@@ -2,48 +2,56 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
-use Database\Factories\UserFactory;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+// Trait para manejar eliminación lógica (soft delete)
+use Illuminate\Database\Eloquent\SoftDeletes;
+
+// Tipo de relación (usuario pertenece a un rol)
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+
+// Clase base para autenticación (login, password, etc.)
 use Illuminate\Foundation\Auth\User as Authenticatable;
+
+// Permite notificaciones (emails, etc.)
 use Illuminate\Notifications\Notifiable;
 
 class User extends Authenticatable
 {
-    /** @use HasFactory<UserFactory> */
-    use HasFactory, Notifiable;
+    // Traits usados en el modelo
+    use Notifiable, SoftDeletes;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var list<string>
-     */
+    // Campos que se pueden asignar masivamente (mass assignment)
     protected $fillable = [
         'name',
         'email',
         'password',
+        'role_id',
+        'is_active',
     ];
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var list<string>
-     */
+    // Campos que NO se devuelven en JSON
     protected $hidden = [
         'password',
-        'remember_token',
     ];
 
     /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
+     * Define conversiones automáticas de tipos
      */
     protected function casts(): array
     {
         return [
-            'email_verified_at' => 'datetime',
-            'password' => 'hashed',
+            // Hashea automáticamente el password al guardarlo
+            'password'  => 'hashed',
+
+            // Convierte 1/0 a true/false
+            'is_active' => 'boolean',
         ];
+    }
+
+    /**
+     * Relación: un usuario pertenece a un rol
+     */
+    public function role(): BelongsTo
+    {
+        return $this->belongsTo(Role::class);
     }
 }
