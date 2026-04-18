@@ -14,7 +14,16 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 // Permite notificaciones (emails, etc.)
 use Illuminate\Notifications\Notifiable;
 
-class User extends Authenticatable
+// Interfaz necesaria para trabajar con JWT
+use Tymon\JWTAuth\Contracts\JWTSubject;
+
+/**
+ * Modelo User
+ *
+ * Representa a los usuarios del sistema.
+ * Incluye autenticación, relaciones, soft deletes y JWT.
+ */
+class User extends Authenticatable implements JWTSubject
 {
     // Traits usados en el modelo
     use Notifiable, SoftDeletes;
@@ -28,7 +37,9 @@ class User extends Authenticatable
         'is_active',
     ];
 
-    // Campos que NO se devuelven en JSON
+    /**
+     * Campos ocultos en respuestas JSON (API)
+     */
     protected $hidden = [
         'password',
     ];
@@ -53,5 +64,32 @@ class User extends Authenticatable
     public function role(): BelongsTo
     {
         return $this->belongsTo(Role::class);
+    }
+
+    // ─── JWT ────────────────────────────────────────
+
+    /**
+     * Retorna el identificador que se almacenará en el token JWT
+     *
+     * Normalmente es el ID del usuario
+     */
+    public function getJWTIdentifier(): mixed
+    {
+        return $this->getKey();// equivalente a $this->id
+    }
+
+    /**
+     * Retorna datos adicionales que se incluirán dentro del token JWT
+     *
+     * Estos datos se pueden leer en el frontend sin necesidad de otra petición
+     */
+    public function getJWTCustomClaims(): array
+    {
+        return [
+            // Rol del usuario (ej: admin, receptionist)
+            'role' => $this->role->slug,
+            // Nombre del usuario
+            'name' => $this->name,
+        ];
     }
 }
