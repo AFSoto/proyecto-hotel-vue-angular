@@ -50,9 +50,9 @@ Route::middleware('auth:api')->group(function () {
     // Solo usuarios con rol "admin" pueden acceder
     Route::middleware('role:admin')->group(function () {
 
-        // Aquí irán rutas como:
-        // usuarios (users)
-        // tipos de habitación (room-types)
+        // CRUD usuarios    → se implementa en TASK-BE-009
+        // CRUD room-types  → se implementa en TASK-BE-012
+        // Historial        → se implementa en TASK-BE-026
     });
 
     // ------------------------------
