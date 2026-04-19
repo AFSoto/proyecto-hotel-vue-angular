@@ -2,6 +2,7 @@
 
 // Importa la clase Route para definir rutas en Laravel
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Api\AuthController;
 
 // ==============================
 // 🔓 RUTAS PÚBLICAS (sin token)
@@ -10,11 +11,7 @@ use Illuminate\Support\Facades\Route;
 // Agrupa rutas bajo el prefijo /api/auth
 // Ejemplo: /api/auth/login
 Route::prefix('auth')->group(function () {
-
-    // Aquí irá la ruta de login
-    // Será algo como:
-    // POST /api/auth/login
-    // No necesita token porque el usuario aún no está autenticado
+    Route::post('login', [AuthController::class, 'login']);
 });
 
 // ==============================
@@ -31,15 +28,18 @@ Route::middleware('auth:api')->group(function () {
 
     // Prefijo /api/auth
     Route::prefix('auth')->group(function () {
-
         // GET /api/auth/me
         // Devuelve los datos del usuario autenticado
 
+        Route::get('me',       [AuthController::class, 'me']);
+
         // POST /api/auth/logout
         // Cierra sesión (invalida el token)
+        Route::post('logout',  [AuthController::class, 'logout']);
 
         // POST /api/auth/refresh
         // Genera un nuevo token JWT
+        Route::post('refresh', [AuthController::class, 'refresh']);
     });
 
     // ------------------------------
@@ -68,6 +68,6 @@ Route::middleware('auth:api')->group(function () {
     // check-ins
     // check-outs
     Route::middleware('role:admin|recepcionista')->group(function () {
-    // rutas compartidas
-});
+        // rutas compartidas
+    });
 });
