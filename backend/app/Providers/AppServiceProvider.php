@@ -13,6 +13,12 @@ use App\Repositories\Contracts\RoleRepositoryInterface;
 use App\Repositories\UserRepository;
 use App\Repositories\RoleRepository;
 
+// Service Contracts
+use App\Services\Contracts\AuthServiceInterface;
+
+// Service Implementations
+use App\Services\AuthService;
+
 /**
  * AppServiceProvider
  *
@@ -36,6 +42,9 @@ class AppServiceProvider extends ServiceProvider
         // Cuando alguien solicite RoleRepositoryInterface,
         // Laravel inyectará RoleRepository
         $this->app->bind(RoleRepositoryInterface::class, RoleRepository::class);
+
+        // Services
+        $this->app->bind(AuthServiceInterface::class, AuthService::class);
     }
 
     /**
