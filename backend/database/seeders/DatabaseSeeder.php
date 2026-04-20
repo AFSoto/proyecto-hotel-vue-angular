@@ -30,6 +30,8 @@ class DatabaseSeeder extends Seeder
         $this->call([
             RoleSeeder::class, // primero roles (importante por FK)
             UserSeeder::class, // luego usuarios
+            RoomTypeSeeder::class,
+            RoomSeeder::class,
         ]);
     }
 }
