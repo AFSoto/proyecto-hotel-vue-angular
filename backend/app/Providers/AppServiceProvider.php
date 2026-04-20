@@ -8,18 +8,22 @@ use Illuminate\Support\ServiceProvider;
 // Interfaces (contratos)
 use App\Repositories\Contracts\UserRepositoryInterface;
 use App\Repositories\Contracts\RoleRepositoryInterface;
+use App\Repositories\Contracts\RoomTypeRepositoryInterface;
 
 // Implementaciones concretas
 use App\Repositories\UserRepository;
 use App\Repositories\RoleRepository;
+use App\Repositories\RoomTypeRepository;
 
 // Service Contracts
 use App\Services\Contracts\AuthServiceInterface;
 use App\Services\Contracts\UserServiceInterface;
+use App\Services\Contracts\RoomTypeServiceInterface;
 
 // Service Implementations
 use App\Services\AuthService;
 use App\Services\UserService;
+use App\Services\RoomTypeService;
 
 /**
  * AppServiceProvider
@@ -45,11 +49,15 @@ class AppServiceProvider extends ServiceProvider
         // Laravel inyectará RoleRepository
         $this->app->bind(RoleRepositoryInterface::class, RoleRepository::class);
 
+        // Cuando se necesite RoomTypeRepositoryInterface, se resolverá automáticamente RoomTypeRepository
+        $this->app->bind(RoomTypeRepositoryInterface::class, RoomTypeRepository::class);
+
 
 
         // Services
         $this->app->bind(AuthServiceInterface::class, AuthService::class);
         $this->app->bind(UserServiceInterface::class, UserService::class);
+        $this->app->bind(RoomTypeServiceInterface::class, RoomTypeService::class);
     }
 
     /**

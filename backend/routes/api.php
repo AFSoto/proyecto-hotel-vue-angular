@@ -4,6 +4,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\UserController;
+use App\Http\Controllers\Api\RoomTypeController;
 
 // ==============================
 // 🔓 RUTAS PÚBLICAS (sin token)
@@ -54,7 +55,9 @@ Route::middleware('auth:api')->group(function () {
         // CRUD usuarios
         // Registra automáticamente todas las rutas RESTful para el recurso "users"
         Route::apiResource('users', UserController::class);
+
         // CRUD room-types  → se implementa en TASK-BE-012
+        Route::apiResource('room-types', RoomTypeController::class);
         // Historial        → se implementa en TASK-BE-026
     });
 
