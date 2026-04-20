@@ -3,6 +3,7 @@
 // Importa la clase Route para definir rutas en Laravel
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\UserController;
 
 // ==============================
 // 🔓 RUTAS PÚBLICAS (sin token)
@@ -50,7 +51,9 @@ Route::middleware('auth:api')->group(function () {
     // Solo usuarios con rol "admin" pueden acceder
     Route::middleware('role:admin')->group(function () {
 
-        // CRUD usuarios    → se implementa en TASK-BE-009
+        // CRUD usuarios
+        // Registra automáticamente todas las rutas RESTful para el recurso "users"
+        Route::apiResource('users', UserController::class);
         // CRUD room-types  → se implementa en TASK-BE-012
         // Historial        → se implementa en TASK-BE-026
     });
