@@ -1,78 +1,122 @@
-// Importa funciones para crear el router de Vue
+// Importa funciones para crear el router
 import { createRouter, createWebHistory } from 'vue-router'
 
-// Store de autenticación (Pinia)
+// Store de autenticación
 import { useAuthStore } from '@/stores/auth'
 
 // =========================
-// 📄 VISTAS (PÁGINAS)
+// VISTAS PÚBLICAS
 // =========================
 
-// Vista de login
-import LoginView from '@/views/auth/LoginView.vue'
-
-// Dashboard del admin
-import DashboardView from '@/views/admin/DashboardView.vue'
-
-// Home del recepcionista
-import ReceptionistHomeView from '@/views/receptionist/ReceptionistHomeView.vue'
-
+// Página pública inicial
 import HomeView from '@/views/HomeView.vue'
 
+// Página de login
+import LoginView from '@/views/auth/LoginView.vue'
+
+// =========================
+// LAYOUT PRINCIPAL
+// =========================
+
+// Layout que envuelve las vistas protegidas
+import AppLayout from '@/components/layout/AppLayout.vue'
+
+// =========================
+// VISTAS INTERNAS
+// =========================
+
+
 /**
- *  DEFINICIÓN DE RUTAS
+ * Definición de rutas
  */
 const routes = [
-
-  // 🔐 LOGIN (pública)
+  {
+    path: '/',
+    name: 'home',
+    component: HomeView,
+    meta: { requiresAuth: false } // ruta pública
+  },
   {
     path: '/login',
     name: 'login',
     component: LoginView,
-    meta: { requiresAuth: false } // no requiere autenticación
+    meta: { requiresAuth: false } // ruta pública
   },
 
-  // ─────────────────────────────
-  // 🧑‍💼 ADMIN
-  // ─────────────────────────────
+  // =========================
+  // RUTAS PROTEGIDAS (APP)
+  // =========================
   {
-    path: '/admin/dashboard',
-    name: 'admin.dashboard',
-    component: DashboardView,
-    meta: {
-      requiresAuth: true,  // requiere login
-      role: 'admin',       // solo admin puede acceder
-      title: 'Dashboard'
-    }
+    path: '/app',
+    component: AppLayout,
+    meta: { requiresAuth: true }, // requiere autenticación
+    children: [
+      {
+        path: 'dashboard',
+        name: 'dashboard',
+        component: () => {
+          const auth = useAuthStore()
+          return auth.isAdmin
+            ? import('@/views/admin/AdminDashboardView.vue')
+            : import('@/views/receptionist/ReceptionistDashboardView.vue')
+        },
+        meta: { requiresAuth: true, title: 'Dashboard' }
+      },
+      {
+        path: 'rooms',
+        name: 'rooms',
+        // Lazy loading (import dinámico)
+        component: () => import('@/views/admin/AdminDashboardView.vue'), // placeholder
+        meta: { requiresAuth: true, title: 'Habitaciones' }
+      },
+      {
+        path: 'bookings',
+        name: 'bookings',
+        component: () => import('@/views/admin/AdminDashboardView.vue'), // placeholder
+        meta: { requiresAuth: true, title: 'Reservas' }
+      },
+      {
+        path: 'check-in-out',
+        name: 'check-in-out',
+        component: () => import('@/views/admin/AdminDashboardView.vue'), // placeholder
+        meta: { requiresAuth: true, title: 'Check-in / Check-out' }
+      },
+      {
+        path: 'room-types',
+        name: 'room-types',
+        component: () => import('@/views/admin/AdminDashboardView.vue'), // placeholder
+        meta: {
+          requiresAuth: true,
+          role: 'admin', // solo admin
+          title: 'Tipos de habitación'
+        }
+      },
+      {
+        path: 'users',
+        name: 'users',
+        component: () => import('@/views/admin/AdminDashboardView.vue'), // placeholder
+        meta: {
+          requiresAuth: true,
+          role: 'admin',
+          title: 'Usuarios'
+        }
+      },
+      {
+        path: 'stays',
+        name: 'stays',
+        component: () => import('@/views/admin/AdminDashboardView.vue'), // placeholder
+        meta: {
+          requiresAuth: true,
+          role: 'admin',
+          title: 'Historial de estancias'
+        }
+      }
+    ]
   },
 
-  // ─────────────────────────────
-  // 🧑‍💻 RECEPTIONIST
-  // ─────────────────────────────
-  {
-    path: '/receptionist/home',
-    name: 'receptionist.home',
-    component: ReceptionistHomeView,
-    meta: {
-      requiresAuth: true,
-      role: 'receptionist',
-      title: 'Inicio'
-    }
-  },
-
-  // ─────────────────────────────
-  //  RUTA RAÍZ
-  // ─────────────────────────────
-    {
-    path: '/',
-    name: 'home',
-    component: HomeView,
-    meta: { requiresAuth: false }
-  },
-
-  // ─────────────────────────────
-  // ❌ 404 NOT FOUND
-  // ─────────────────────────────
+  // =========================
+  // 404
+  // =========================
   {
     path: '/:pathMatch(.*)*',
     name: 'not-found',
@@ -81,50 +125,42 @@ const routes = [
 ]
 
 /**
- * 🚀 CREACIÓN DEL ROUTER
+ * Creación del router
  */
 const router = createRouter({
-  // Usa historial limpio (sin #)
   history: createWebHistory(import.meta.env.BASE_URL),
-
-  // Rutas definidas arriba
   routes
 })
 
 /**
- * 🛡️ GUARD GLOBAL (AUTH + ROLES)
- * Se ejecuta antes de cada navegación
+ * Guard global de navegación
  */
 router.beforeEach(async (to, from, next) => {
   const auth = useAuthStore()
 
-  // ─────────────────────────────
-  // 🔓 RUTAS PÚBLICAS
-  // ─────────────────────────────
+  // =========================
+  // RUTAS PÚBLICAS
+  // =========================
   if (!to.meta.requiresAuth) {
 
-    // Si ya está logueado y entra a login → redirigir home
+    // Si ya está logueado y entra a login → redirigir
     if (to.name === 'login' && auth.isAuthenticated) {
-      return next(
-        auth.isAdmin
-          ? '/admin/dashboard'
-          : '/receptionist/home'
-      )
+      return next('/app/dashboard')
     }
 
     return next()
   }
 
-  // ─────────────────────────────
-  // 🔐 REQUIERE AUTENTICACIÓN
-  // ─────────────────────────────
+  // =========================
+  // REQUIERE AUTENTICACIÓN
+  // =========================
+
+  // Si no hay token → login
   if (!auth.isAuthenticated) {
     return next('/login')
   }
 
-  // ─────────────────────────────
-  // 👤 CARGA DE USUARIO
-  // ─────────────────────────────
+  // Si hay token pero no usuario → obtener datos
   if (!auth.user) {
     await auth.fetchMe()
 
@@ -134,22 +170,16 @@ router.beforeEach(async (to, from, next) => {
     }
   }
 
-  // ─────────────────────────────
-  // 🎭 VALIDACIÓN DE ROLES
-  // ─────────────────────────────
+  // =========================
+  // VALIDACIÓN DE ROL
+  // =========================
   if (to.meta.role && to.meta.role !== auth.userRole) {
-
-    // Si no tiene el rol correcto → redirigir a su home
-    return next(
-      auth.isAdmin
-        ? '/admin/dashboard'
-        : '/receptionist/home'
-    )
+    return next('/app/dashboard')
   }
 
-  // Permitir acceso
+  // Permitir navegación
   next()
 })
 
-// Exporta el router para usarlo en la app
+// Exporta el router
 export default router

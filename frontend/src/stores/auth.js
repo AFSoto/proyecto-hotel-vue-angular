@@ -65,11 +65,9 @@ export const useAuthStore = defineStore('auth', () => {
 
     // 🔀 Redirección según rol del usuario
     if (isAdmin.value) {
-      router.push('/admin/dashboard')
-    } else {
-      router.push('/receptionist/home')
-    }
+      router.push('/app/dashboard')
   }
+}
 
   /**
    * 🚪 LOGOUT
