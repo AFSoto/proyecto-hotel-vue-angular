@@ -1,38 +1,19 @@
 <template>
-  <div class="p-8 max-w-sm mx-auto space-y-6 mt-20">
-    <h1 class="text-2xl font-bold">Test de componentes</h1>
+  <div class="p-8 max-w-sm mx-auto space-y-4 mt-20">
+    <h1 class="text-2xl font-bold">Test de Toasts</h1>
 
-    <AppInput
-      v-model="email"
-      label="Email"
-      type="email"
-      placeholder="admin@hotel.com"
-    />
-
-    <AppInput
-      v-model="password"
-      label="Contraseña"
-      type="password"
-      placeholder="Tu contraseña"
-      error="La contraseña es obligatoria"
-    />
-
-    <div class="flex gap-3">
-      <AppButton>Primary</AppButton>
-      <AppButton variant="secondary">Secondary</AppButton>
-      <AppButton variant="danger">Danger</AppButton>
-      <AppButton variant="ghost">Ghost</AppButton>
+    <div class="flex flex-wrap gap-3">
+      <AppButton @click="toast.success('Operación exitosa')">Success</AppButton>
+      <AppButton variant="danger" @click="toast.error('Algo salió mal')">Error</AppButton>
+      <AppButton variant="secondary" @click="toast.warning('Ten cuidado')">Warning</AppButton>
+      <AppButton variant="ghost" @click="toast.info('Información útil')">Info</AppButton>
     </div>
-
-    <AppButton loading>Cargando...</AppButton>
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue'
-import AppInput from '@/components/common/AppInput.vue'
 import AppButton from '@/components/common/AppButton.vue'
+import { useToast } from '@/composables/useToast'
 
-const email = ref('')
-const password = ref('')
+const toast = useToast()
 </script>
