@@ -56,9 +56,9 @@ const routes = [
         name: 'dashboard',
         component: () => {
           const auth = useAuthStore()
-          return auth.isAdmin
-            ? import('@/views/admin/AdminDashboardView.vue')
-            : import('@/views/receptionist/ReceptionistDashboardView.vue')
+          return auth.isAdmin || auth.isReceptionist
+            ? import('@/views/DashboardView.vue')
+            : import('@/views/auth/LoginView.vue')
         },
         meta: { requiresAuth: true, title: 'Dashboard' }
       },
@@ -66,25 +66,25 @@ const routes = [
         path: 'rooms',
         name: 'rooms',
         // Lazy loading (import dinámico)
-        component: () => import('@/views/admin/AdminDashboardView.vue'), // placeholder
+        component: () => import('@/views/DashboardView.vue'), // placeholder
         meta: { requiresAuth: true, title: 'Habitaciones' }
       },
       {
         path: 'bookings',
         name: 'bookings',
-        component: () => import('@/views/admin/AdminDashboardView.vue'), // placeholder
+        component: () => import('@/views/DashboardView.vue'), // placeholder
         meta: { requiresAuth: true, title: 'Reservas' }
       },
       {
         path: 'check-in-out',
         name: 'check-in-out',
-        component: () => import('@/views/admin/AdminDashboardView.vue'), // placeholder
+        component: () => import('@/views/DashboardView.vue'), // placeholder
         meta: { requiresAuth: true, title: 'Check-in / Check-out' }
       },
       {
         path: 'room-types',
         name: 'room-types',
-        component: () => import('@/views/admin/AdminDashboardView.vue'), // placeholder
+        component: () => import('@/views/DashboardView.vue'), // placeholder
         meta: {
           requiresAuth: true,
           role: 'admin', // solo admin
@@ -94,7 +94,7 @@ const routes = [
       {
         path: 'users',
         name: 'users',
-        component: () => import('@/views/admin/AdminDashboardView.vue'), // placeholder
+        component: () => import('@/views/DashboardView.vue'), // placeholder
         meta: {
           requiresAuth: true,
           role: 'admin',
@@ -104,7 +104,7 @@ const routes = [
       {
         path: 'stays',
         name: 'stays',
-        component: () => import('@/views/admin/AdminDashboardView.vue'), // placeholder
+        component: () => import('@/views/DashboardView.vue'), // placeholder
         meta: {
           requiresAuth: true,
           role: 'admin',

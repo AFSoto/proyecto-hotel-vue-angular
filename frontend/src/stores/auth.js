@@ -64,7 +64,7 @@ export const useAuthStore = defineStore('auth', () => {
     localStorage.setItem('user', JSON.stringify(data.data))
 
     // 🔀 Redirección según rol del usuario
-    if (isAdmin.value) {
+    if (isAdmin.value || isReceptionist.value) {
       router.push('/app/dashboard')
   }
 }
