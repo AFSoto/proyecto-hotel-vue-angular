@@ -1,77 +1,73 @@
 <template>
   <div class="space-y-8">
-    <h1 class="text-2xl font-bold text-gray-800">Test de componentes</h1>
+    <h1 class="text-2xl font-bold text-gray-800">Test AppTable</h1>
 
-    <!-- Badges -->
-    <div>
-      <h2 class="text-sm font-semibold text-gray-500 mb-3">BADGES</h2>
-      <div class="flex flex-wrap gap-2">
-        <AppBadge variant="available">Disponible</AppBadge>
-        <AppBadge variant="occupied">Ocupada</AppBadge>
-        <AppBadge variant="maintenance">Mantenimiento</AppBadge>
-        <AppBadge variant="confirmed">Confirmada</AppBadge>
-        <AppBadge variant="cancelled">Cancelada</AppBadge>
-        <AppBadge variant="admin">Admin</AppBadge>
-        <AppBadge variant="receptionist">Recepcionista</AppBadge>
-        <AppBadge variant="active">Activo</AppBadge>
-        <AppBadge variant="inactive">Inactivo</AppBadge>
-      </div>
+    <!-- Controles -->
+    <div class="flex gap-3">
+      <AppButton @click="state = 'loading'">Loading</AppButton>
+      <AppButton variant="secondary" @click="state = 'data'">Con datos</AppButton>
+      <AppButton variant="ghost" @click="state = 'empty'">Vacío</AppButton>
     </div>
 
-    <!-- Modal -->
-    <div>
-      <h2 class="text-sm font-semibold text-gray-500 mb-3">MODAL</h2>
-      <AppButton @click="showModal = true">Abrir modal</AppButton>
+    <!-- Tabla -->
+    <AppTable
+      :columns="columns"
+      :rows="state === 'data' ? rows : []"
+      :loading="state === 'loading'"
+      :pagination="state === 'data' ? pagination : null"
+      @page-change="handlePageChange"
+    >
+      <template #cell-role="{ row }">
+        <AppBadge :variant="row.role === 'Admin' ? 'admin' : 'receptionist'">
+          {{ row.role }}
+        </AppBadge>
+      </template>
 
-      <AppModal :open="showModal" title="Crear usuario" @close="showModal = false">
-        <p class="text-sm text-gray-600">Aquí iría el formulario de creación de usuario.</p>
-        <template #footer>
-          <div class="flex justify-end gap-3">
-            <AppButton variant="secondary" @click="showModal = false">Cancelar</AppButton>
-            <AppButton>Guardar</AppButton>
-          </div>
-        </template>
-      </AppModal>
-    </div>
+      <template #cell-status="{ row }">
+        <AppBadge :variant="row.active ? 'active' : 'inactive'">
+          {{ row.active ? 'Activo' : 'Inactivo' }}
+        </AppBadge>
+      </template>
 
-    <!-- Confirm Dialog -->
-    <div>
-      <h2 class="text-sm font-semibold text-gray-500 mb-3">CONFIRM DIALOG</h2>
-      <div class="flex gap-3">
-        <AppButton variant="danger" @click="showConfirm = true">Eliminar usuario</AppButton>
-        <AppButton @click="showConfirmSafe = true">Confirmar check-in</AppButton>
-      </div>
-
-      <ConfirmDialog
-        :open="showConfirm"
-        title="Eliminar usuario"
-        message="Se eliminará el usuario permanentemente. Esta acción no se puede deshacer."
-        confirm-label="Eliminar"
-        danger
-        @confirm="showConfirm = false"
-        @cancel="showConfirm = false"
-      />
-
-      <ConfirmDialog
-        :open="showConfirmSafe"
-        title="Confirmar check-in"
-        message="Se registrará el check-in y la habitación pasará a estado ocupada."
-        confirm-label="Confirmar check-in"
-        @confirm="showConfirmSafe = false"
-        @cancel="showConfirmSafe = false"
-      />
-    </div>
+      <template #cell-actions>
+        <div class="flex gap-2">
+          <AppButton size="sm" variant="ghost">Editar</AppButton>
+          <AppButton size="sm" variant="danger">Eliminar</AppButton>
+        </div>
+      </template>
+    </AppTable>
   </div>
 </template>
 
 <script setup>
 import { ref } from 'vue'
-import AppButton from '@/components/common/AppButton.vue'
+import AppTable from '@/components/common/AppTable.vue'
 import AppBadge from '@/components/common/AppBadge.vue'
-import AppModal from '@/components/common/AppModal.vue'
-import ConfirmDialog from '@/components/common/ConfirmDialog.vue'
+import AppButton from '@/components/common/AppButton.vue'
 
-const showModal = ref(false)
-const showConfirm = ref(false)
-const showConfirmSafe = ref(false)
+const state = ref('data')
+
+const columns = [
+  { key: 'name', label: 'Nombre' },
+  { key: 'email', label: 'Email' },
+  { key: 'role', label: 'Rol', width: '120px' },
+  { key: 'status', label: 'Estado', width: '100px' },
+  { key: 'actions', label: 'Acciones', width: '180px' }
+]
+
+const rows = [
+  { id: 1, name: 'Carlos Admin', email: 'admin@hotel.com', role: 'Admin', active: true },
+  { id: 2, name: 'María Recepción', email: 'recep@hotel.com', role: 'Recepcionista', active: true },
+  { id: 3, name: 'Juan López', email: 'juan@hotel.com', role: 'Recepcionista', active: false }
+]
+
+const pagination = ref({
+  current_page: 1,
+  last_page: 3,
+  total: 45
+})
+
+function handlePageChange(page) {
+  pagination.value.current_page = page
+}
 </script>
